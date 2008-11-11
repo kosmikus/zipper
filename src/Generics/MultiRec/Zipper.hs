@@ -13,9 +13,8 @@ import Prelude hiding (last)
 
 import Control.Monad
 import Data.Maybe
-import Base
-import TEq
-import Void
+import Generics.MultiRec.Base
+-- import TEq
 
 -- * Locations and context stacks
 
@@ -30,7 +29,7 @@ data Ctxs :: (* -> *) -> * -> * -> * where
 
 data family Ctx f :: (* -> *) -> * -> * -> *
 
-data instance Ctx (K a) s ix b      = CK Void
+data instance Ctx (K a) s ix b
 data instance Ctx (f :+: g) s ix b  = CL (Ctx f s ix b) 
                                     | CR (Ctx g s ix b)
 data instance Ctx (f :*: g) s ix b  = C1 (Ctx f s ix b) (g s I0 ix) 
@@ -41,6 +40,13 @@ data instance Ctx (f :*: g) s ix b  = C1 (Ctx f s ix b) (g s I0 ix)
 
 data instance Ctx (I xi) s ix b     = CId (b :=: xi)
 data instance Ctx (f :>: xi) s ix b = CTag (ix :=: xi) (Ctx f s ix b)
+
+-- * Internal stuff
+
+data (:=:) :: * -> * -> * where
+  Refl :: a :=: a
+
+impossible x = error "impossible"
 
 -- * Generic navigation functions
 
@@ -59,11 +65,11 @@ instance Zipper (I xi) where
   prev  f (CId prf) x = Nothing 
 
 instance Zipper (K a) where
-  fill    (CK void) x = impossible void
-  first f (K a)       = Nothing
-  last  f (K a)       = Nothing
-  next  f (CK void) x = impossible void
-  prev  f (CK void) x = impossible void
+  fill    void x = impossible void
+  first f (K a)  = Nothing
+  last  f (K a)  = Nothing
+  next  f void x = impossible void
+  prev  f void x = impossible void
 
 instance (Zipper f, Zipper g) => Zipper (f :+: g) where
   fill    (CL c) x = L (fill c x)
