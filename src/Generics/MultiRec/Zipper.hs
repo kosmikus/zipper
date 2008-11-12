@@ -14,7 +14,7 @@ import Prelude hiding (last)
 import Control.Monad
 import Data.Maybe
 import Generics.MultiRec.Base
--- import TEq
+import Generics.MultiRec.Zipper.TEq
 
 -- * Locations and context stacks
 
@@ -43,9 +43,7 @@ data instance Ctx (f :>: xi) s ix b = CTag (ix :=: xi) (Ctx f s ix b)
 
 -- * Internal stuff
 
-data (:=:) :: * -> * -> * where
-  Refl :: a :=: a
-
+impossible :: a -> b
 impossible x = error "impossible"
 
 -- * Generic navigation functions
