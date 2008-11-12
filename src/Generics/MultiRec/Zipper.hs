@@ -7,12 +7,26 @@
 {-# LANGUAGE TypeFamilies          #-}
 {-# LANGUAGE TypeOperators         #-}
 
+-----------------------------------------------------------------------------
+-- |
+-- Module      :  Generics.MultiRec.Zipper
+-- Copyright   :  (c) 2008 Universiteit Utrecht
+-- License     :  BSD3
+--
+-- Maintainer  :  generics@haskell.org
+-- Stability   :  experimental
+-- Portability :  non-portable
+--
+-- The generic zipper.
+--
+-----------------------------------------------------------------------------
 module Generics.MultiRec.Zipper where
 
 import Prelude hiding (last)
 
 import Control.Monad
 import Data.Maybe
+
 import Generics.MultiRec.Base
 import Generics.MultiRec.Zipper.TEq
 
@@ -40,11 +54,6 @@ data instance Ctx (f :*: g) s ix b  = C1 (Ctx f s ix b) (g s I0 ix)
 
 data instance Ctx (I xi) s ix b     = CId (b :=: xi)
 data instance Ctx (f :>: xi) s ix b = CTag (ix :=: xi) (Ctx f s ix b)
-
--- * Internal stuff
-
-impossible :: a -> b
-impossible x = error "impossible"
 
 -- * Generic navigation functions
 
@@ -109,19 +118,6 @@ instance Zipper f => Zipper (f :>: xi) where
   next  f (CTag prf c) x = next  (\z -> f z . CTag prf)  c x
   prev  f (CTag prf c) x = prev  (\z -> f z . CTag prf)  c x
 
--- Helping the typechecker to apply equality proofs correctly ...
-
-castId  :: (b :=: xi)
-        -> (Ix s xi => xi -> I xi s I0 ix)
-        -> (Ix s b  => b  -> I xi s I0 ix)
-
-castTag :: (ix :=: xi)
-        -> (f s I0 ix -> (f :>: ix) s I0 ix)
-        -> (f s I0 ix -> (f :>: xi) s I0 ix)
-
-castId  Refl f = f
-castTag Refl f = f
-
 -- * Interface
 
 enter           :: (Ix s ix, Zipper (PF s)) => s ix -> ix -> Loc s ix
@@ -144,3 +140,22 @@ leave    (Loc x Empty)      = x
 leave    loc                = leave (fromJust (up loc))
 on f     (Loc x _         ) =      f index x
 update f (Loc x s         ) = Loc (f index x) s
+
+-- * Internal functions
+
+impossible :: a -> b
+impossible x = error "impossible"
+
+-- Helping the typechecker to apply equality proofs correctly ...
+
+castId  :: (b :=: xi)
+        -> (Ix s xi => xi -> I xi s I0 ix)
+        -> (Ix s b  => b  -> I xi s I0 ix)
+
+castTag :: (ix :=: xi)
+        -> (f s I0 ix -> (f :>: ix) s I0 ix)
+        -> (f s I0 ix -> (f :>: xi) s I0 ix)
+
+castId  Refl f = f
+castTag Refl f = f
+

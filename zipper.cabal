@@ -23,4 +23,5 @@ exposed-modules:	Generics.MultiRec.Zipper
 extra-source-files:	examples/AST.hs
 			examples/ASTZipper.hs
 			CREDITS
-build-depends:		base >= 3
+build-depends:		base >= 3,
+			multirec >= 0.1
