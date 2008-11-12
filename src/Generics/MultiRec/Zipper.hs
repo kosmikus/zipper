@@ -20,7 +20,16 @@
 -- The generic zipper.
 --
 -----------------------------------------------------------------------------
-module Generics.MultiRec.Zipper where
+module Generics.MultiRec.Zipper
+  (-- * Locations
+   Loc(),
+   -- * Context frames
+   Ctx(),
+   -- * Generic zipper class
+   Zipper(..),
+   -- * Interface
+   enter, down, down', up, right, left, leave, on, update
+  ) where
 
 import Prelude hiding (last)
 
