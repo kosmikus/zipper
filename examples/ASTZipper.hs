@@ -2,7 +2,7 @@
 {-# LANGUAGE GADTs            #-}
 {-# LANGUAGE TypeFamilies     #-}
 
-module ASTExamples where
+module ASTZipper where
 
 import Data.Maybe (fromJust)
 import Control.Arrow ((>>>))
