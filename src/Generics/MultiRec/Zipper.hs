@@ -66,6 +66,10 @@ data instance Ctx (f :>: xi) s ix b = CTag (ix :=: xi) (Ctx f s ix b)
 
 -- * Generic navigation functions
 
+-- It is in general not necessary to use the generic navigation
+-- functions directly. The functions listed in the ``Interface'' section
+-- below are more user-friendly.
+
 class Zipper f where
   fill        :: Ix s b => Ctx f s ix b -> b -> f s I0 ix
   first, last :: (forall b. Ix s b => b -> Ctx f s ix b -> a)
@@ -129,11 +133,38 @@ instance Zipper f => Zipper (f :>: xi) where
 
 -- * Interface
 
+-- | Start navigating a datastructure. Returns a location that
+-- focuses the entire value and has an empty context.
 enter           :: (Ix s ix, Zipper (PF s)) => s ix -> ix -> Loc s ix
-down, down', up :: Loc s ix -> Maybe (Loc s ix)
-right, left     :: Loc s ix -> Maybe (Loc s ix)
+
+-- | Move down to the leftmost child. Returns 'Nothing' if the
+-- current focus is a leaf.
+down            :: Loc s ix -> Maybe (Loc s ix)
+
+-- | Move down to the rightmost child. Returns 'Nothing' if the
+-- current focus is a leaf.
+down'           :: Loc s ix -> Maybe (Loc s ix)
+
+-- | Move up to the parent. Returns 'Nothing' if the current
+-- focus is the root.
+up              :: Loc s ix -> Maybe (Loc s ix)
+
+-- | Move to the right sibling. Returns 'Nothing' if the current
+-- focus is the rightmost sibling.
+right           :: Loc s ix -> Maybe (Loc s ix)
+
+-- | Move to the left sibling. Returns 'Nothing' if the current
+-- focus is the leftmost sibling.
+left            :: Loc s ix -> Maybe (Loc s ix)
+
+-- | Return the entire value, independent of the current focus.
 leave           :: Loc s ix -> ix
+
+-- | Operate on the current focus. This function can be used to
+-- extract the current point of focus.
 on              :: (forall xi. s xi -> xi -> a)  -> Loc s ix -> a
+
+-- | Update the current focus without changing its type.
 update          :: (forall xi. s xi -> xi -> xi) -> Loc s ix -> Loc s ix
 
 enter _ x                   = Loc x Empty
