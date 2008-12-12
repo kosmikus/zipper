@@ -4,6 +4,8 @@ module ASTEditor where
 
 -- This is currently more a navigator than an editor, because
 -- there is no way to update the value yet.
+-- Also, the implementation uses ugly non-portable ANSI escape codes
+-- at the moment.
 
 import AST
 
@@ -26,7 +28,6 @@ example = Let (Seq ("x" := Mul (Const 6) (Const 9)) ("y" := Const (-12)))
               (Add (EVar "x") (EVar "y"))
 
 -- | Show the current location, with the focus being highlighted in red.
--- Uses ugly non-portable escape codes at the moment.
 showZipper :: Loc AST I0 Expr -> String
 showZipper l = (spaces $ map ($ 0) $ unK0 (foldZipper focus hShowsPrecAlg l)) ""
   where focus :: (Ix AST ix) => AST ix -> ix -> K0 ([Int -> ShowS]) ix
