@@ -74,6 +74,7 @@ data instance Ctx (f :*: g) s r ix b  = C1 (Ctx f s r ix b) (g s r ix)
 
 data instance Ctx (I xi) s r ix b     = CId (b :=: xi)
 data instance Ctx (f :>: xi) s r ix b = CTag (ix :=: xi) (Ctx f s r ix b)
+data instance Ctx (C c f) s r ix b    = CC (Ctx f s r ix b)
 
 -- * Generic navigation functions
 
@@ -151,6 +152,14 @@ instance Zipper f => Zipper (f :>: xi) where
   last  f (Tag x)        = last  (\z -> f z . CTag Refl)   x
   next  f (CTag prf c) x = next  (\z -> f z . CTag prf)  c x
   prev  f (CTag prf c) x = prev  (\z -> f z . CTag prf)  c x
+
+instance (Constructor c, Zipper f) => Zipper (C c f) where
+  cmap  f (CC c)   = CC (cmap f c)
+  fill    (CC c) x = C (fill c x)
+  first f (C x)    = first (\z -> f z . CC) x
+  last  f (C x)    = last  (\z -> f z . CC) x
+  next  f (CC c) x = next  (\z -> f z . CC) c x
+  prev  f (CC c) x = prev  (\z -> f z . CC) c x
 
 -- * Interface
 
