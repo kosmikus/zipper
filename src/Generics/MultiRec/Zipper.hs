@@ -30,7 +30,10 @@ module Generics.MultiRec.Zipper
    -- * Generic zipper class
    Zipper(..),
    -- * Interface
-   enter, down, down', up, right, left, leave, on, update, foldZipper
+   enter,
+   down, down', up, right, left,
+   dfnext, dfprev,
+   leave, on, update, foldZipper
   ) where
 
 import Prelude hiding (last)
@@ -200,6 +203,29 @@ right    (Loc x Empty     ) = Nothing
 right    (Loc x (Push c s)) = next  (\z c' -> Loc z (Push c' s)) c x
 left     (Loc x Empty     ) = Nothing
 left     (Loc x (Push c s)) = prev  (\z c' -> Loc z (Push c' s)) c x
+
+-- ** Derived navigation.
+
+df :: (a -> Maybe a) -> (a -> Maybe a) -> (a -> Maybe a) -> a -> Maybe a
+df d u lr l =
+  case d l of
+    Nothing -> df' l
+    r       -> r
+ where
+  df' l =
+    case lr l of
+      Nothing -> case u l of
+                   Nothing -> Nothing
+                   Just l' -> df' l'
+      r       -> r
+
+-- | Move through all positions in depth-first left-to-right order.
+dfnext :: Loc s I0 ix -> Maybe (Loc s I0 ix)
+dfnext = df down up right
+
+-- | Move through all positions in depth-first right-to-left order.
+dfprev :: Loc s I0 ix -> Maybe (Loc s I0 ix)
+dfprev = df down' up left
 
 -- ** Elimination
 

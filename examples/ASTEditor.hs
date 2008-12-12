@@ -11,6 +11,7 @@ import Generics.MultiRec.Base
 import Generics.MultiRec.Zipper
 import Generics.MultiRec.Show as GS
 
+import System.IO
 import Control.Monad
 
 -- | Call this to start the navigation demo.
@@ -18,6 +19,7 @@ startEditor :: IO ()
 startEditor = 
   do
     intro
+    hSetBuffering stdin NoBuffering
     loop $ enter Expr example
 
 example = Let (Seq ("x" := Mul (Const 6) (Const 9)) ("y" := Const (-12)))
@@ -41,11 +43,13 @@ loop l =
     when (cmd == 'q') $ putStrLn ""
     when (cmd /= 'q') $ do
       let op = case cmd of
-                'j' -> down
-                'l' -> right
-                'h' -> left
-                'k' -> up
-                _   -> return
+                'j'  -> down
+                'l'  -> right
+                'h'  -> left
+                'k'  -> up
+                ' '  -> dfnext
+                '\b' -> dfprev
+                _    -> return
       case op l of
         Nothing -> loop l
         Just l' -> loop l'
@@ -53,4 +57,4 @@ loop l =
 -- | Introductory help message.
 intro :: IO ()
 intro =
-  putStrLn "h: left, j: down, k: up, l: right, q: quit"
+  putStrLn "h: left, j: down, k: up, l: right, q: quit, [space]: df lr traversal, [backsp]: df rl traversal"
