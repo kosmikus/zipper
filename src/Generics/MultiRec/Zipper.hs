@@ -236,16 +236,16 @@ leave loc                = leave (fromJust (up loc))
 
 -- | Operate on the current focus. This function can be used to
 -- extract the current point of focus.
-on :: (forall xi. s xi -> r xi -> a)  -> Loc s r ix -> a
+on :: (forall xi. Ix s xi => s xi -> r xi -> a) -> Loc s r ix -> a
 on f (Loc x _) = f index x
 
 -- | Update the current focus without changing its type.
-update          :: (forall xi. s xi -> xi -> xi) -> Loc s I0 ix -> Loc s I0 ix
+update          :: (forall xi. Ix s xi => s xi -> xi -> xi) -> Loc s I0 ix -> Loc s I0 ix
 update f (Loc (I0 x) s) = Loc (I0 $ f index x) s
 
 -- | Most general eliminator. Both 'on' and 'update' can be defined
 -- in terms of 'foldZipper'.
-foldZipper :: (forall ix. Ix s ix => s ix -> ix -> r ix) -> Algebra s r -> Loc s I0 ix -> r ix
+foldZipper :: (forall xi. Ix s xi => s xi -> xi -> r xi) -> Algebra s r -> Loc s I0 ix -> r ix
 foldZipper f alg (Loc (I0 x) c) = cfold alg c (f index x)
  where
   cfold :: (Ix s b, Zipper (PF s)) => Algebra s r -> Ctxs s I0 a b -> r b -> r a

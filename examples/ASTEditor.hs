@@ -30,14 +30,21 @@ example = Let (Seq ("x" := Mul (Const 6) (Const 9)) ("y" := Const (-12)))
 showZipper :: Loc AST I0 Expr -> String
 showZipper l = (spaces $ map ($ 0) $ unK0 (foldZipper focus hShowsPrecAlg l)) ""
   where focus :: (Ix AST ix) => AST ix -> ix -> K0 ([Int -> ShowS]) ix
-        focus ix x = K0 [const $ ("\ESC[01;31m{" ++) . GS.showsPrec ix 0 x . ("}\ESC[00m" ++)]
+        focus ix x = K0 [\ n -> ("\ESC[01;31m" ++) . GS.showsPrec ix n x . ("\ESC[00m" ++)]
+
+typeOfFocus :: Loc AST I0 Expr -> String
+typeOfFocus = on focus
+  where focus :: (Ix AST ix) => AST ix -> I0 ix -> String
+        focus Expr _ = "expression"
+        focus Decl _ = "declaration"
+        focus Var  _ = "variable"
 
 -- | Main loop. Prints current location, asks for a command and executes
 -- a navigation operation depending on that command.
 loop :: Loc AST I0 Expr -> IO ()
 loop l =
   do
-    putStr (showZipper l)
+    putStr $ (showZipper l) ++ " {" ++ typeOfFocus l ++ "}"
     cmd <- getChar
     putStr "\r\ESC[2K"
     when (cmd == 'q') $ putStrLn ""
