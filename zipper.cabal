@@ -33,6 +33,7 @@ other-modules:		Generics.MultiRec.Zipper.TEq
 
 extra-source-files:	examples/AST.hs
 			examples/ASTZipper.hs
+			examples/ASTEditor.hs
 			CREDITS
 build-depends:		base >= 3,
 			multirec >= 0.1.2
