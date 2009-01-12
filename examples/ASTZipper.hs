@@ -7,6 +7,7 @@ import Control.Arrow ((>>>))
 import Control.Monad ((>=>))
 
 import AST
+import ASTUse
 
 import Generics.MultiRec.Zipper
 

@@ -67,6 +67,7 @@ data Ctxs :: (* -> *) -> (* -> *) -> * -> * -> * where
 data family Ctx f :: (* -> *) -> (* -> *) -> * -> * -> *
 
 data instance Ctx (K a) s r ix b
+data instance Ctx U s r ix b
 data instance Ctx (f :+: g) s r ix b  = CL (Ctx f s r ix b)
                                       | CR (Ctx g s r ix b)
 data instance Ctx (f :*: g) s r ix b  = C1 (Ctx f s r ix b) (g s r ix)
@@ -108,6 +109,14 @@ instance Zipper (K a) where
   fill    void x = impossible void
   first f (K a)  = Nothing
   last  f (K a)  = Nothing
+  next  f void x = impossible void
+  prev  f void x = impossible void
+
+instance Zipper U where
+  cmap  f void   = impossible void
+  fill    void x = impossible void
+  first f U      = Nothing
+  last  f U      = Nothing
   next  f void x = impossible void
   prev  f void x = impossible void
 

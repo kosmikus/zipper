@@ -8,6 +8,7 @@ module ASTEditor where
 -- at the moment.
 
 import AST
+import ASTUse
 
 import Generics.MultiRec.Base
 import Generics.MultiRec.Zipper
@@ -24,7 +25,7 @@ startEditor =
     hSetBuffering stdin NoBuffering
     loop $ enter Expr example
 
-example = Let (Seq ("x" := Mul (Const 6) (Const 9)) ("y" := Const (-12)))
+example = Let (Seq (Seq ("x" := Mul (Const 6) (Const 9)) ("y" := Const (-12))) None)
               (Add (EVar "x") (EVar "y"))
 
 -- | Show the current location, with the focus being highlighted in red.
