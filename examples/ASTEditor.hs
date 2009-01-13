@@ -1,6 +1,6 @@
 {-# LANGUAGE FlexibleContexts #-}
 
-module ASTEditor where
+module Main where
 
 -- This is currently more a navigator than an editor, because
 -- there is no way to update the value yet.
@@ -16,6 +16,9 @@ import Generics.MultiRec.Show as GS
 
 import System.IO
 import Control.Monad
+
+main :: IO ()
+main = startEditor
 
 -- | Call this to start the navigation demo.
 startEditor :: IO ()
