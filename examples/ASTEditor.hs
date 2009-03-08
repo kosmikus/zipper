@@ -33,13 +33,13 @@ example = Let (Seq (Seq ("x" := Mul (Const 6) (Const 9)) ("y" := Const (-12))) N
 
 -- | Show the current location, with the focus being highlighted in red.
 showZipper :: Loc AST I0 Expr -> String
-showZipper l = (spaces $ map ($ 0) $ unK0 (foldZipper focus hShowsPrecAlg l)) ""
-  where focus :: (Ix AST ix) => AST ix -> ix -> K0 ([Int -> ShowS]) ix
+showZipper l = (spaces $ map ($ 0) $ unK0 (foldZipper focus (\ p x -> K0 (hShowsPrecAlg p x)) l)) ""
+  where focus :: AST ix -> ix -> K0 ([Int -> ShowS]) ix
         focus ix x = K0 [\ n -> ("\ESC[01;31m" ++) . GS.showsPrec ix n x . ("\ESC[00m" ++)]
 
 typeOfFocus :: Loc AST I0 Expr -> String
 typeOfFocus = on focus
-  where focus :: (Ix AST ix) => AST ix -> I0 ix -> String
+  where focus :: AST ix -> I0 ix -> String
         focus Expr _ = "expression"
         focus Decl _ = "declaration"
         focus Var  _ = "variable"
