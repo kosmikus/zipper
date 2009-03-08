@@ -1,5 +1,5 @@
 name:			zipper
-version:		0.1
+version:		0.1.99
 license:		BSD3
 license-file:		LICENSE
 author:			Alexey Rodriguez,
@@ -29,11 +29,10 @@ cabal-version:		>= 1.2.1
 tested-with:		GHC == 6.8.3, GHC == 6.10.1
 hs-source-dirs:		src
 exposed-modules:	Generics.MultiRec.Zipper
-other-modules:		Generics.MultiRec.Zipper.TEq
 
 extra-source-files:	examples/AST.hs
 			examples/ASTZipper.hs
 			examples/ASTEditor.hs
 			CREDITS
 build-depends:		base >= 3 && < 4,
-			multirec >= 0.1.5 && < 0.3
+			multirec >= 0.2.99 && < 0.4
