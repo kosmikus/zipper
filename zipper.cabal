@@ -35,4 +35,4 @@ extra-source-files:	examples/AST.hs
 			examples/ASTEditor.hs
 			CREDITS
 build-depends:		base >= 3 && < 4,
-			multirec >= 0.2.99 && < 0.4
+			multirec >= 0.3 && < 0.4
