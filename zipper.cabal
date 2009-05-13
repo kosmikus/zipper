@@ -34,5 +34,5 @@ extra-source-files:	examples/AST.hs
 			examples/ASTZipper.hs
 			examples/ASTEditor.hs
 			CREDITS
-build-depends:		base >= 3 && < 4,
+build-depends:		base >= 3 && < 5,
 			multirec >= 0.3 && < 0.4
