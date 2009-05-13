@@ -60,7 +60,8 @@ loop l =
                 'h'  -> left
                 'k'  -> up
                 ' '  -> dfnext
-                '\b' -> dfprev
+                'n'  -> dfnext
+                'b'  -> dfprev
                 _    -> return
       case op l of
         Nothing -> loop l
@@ -69,4 +70,4 @@ loop l =
 -- | Introductory help message.
 intro :: IO ()
 intro =
-  putStrLn "h: left, j: down, k: up, l: right, q: quit, [space]: df lr traversal, [backsp]: df rl traversal"
+  putStrLn "h: left, j: down, k: up, l: right, q: quit, n,[space]: df lr traversal, b: df rl traversal"
