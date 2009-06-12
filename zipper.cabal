@@ -1,5 +1,5 @@
 name:			zipper
-version:		0.2
+version:		0.3
 license:		BSD3
 license-file:		LICENSE
 author:			Alexey Rodriguez,
@@ -35,4 +35,4 @@ extra-source-files:	examples/AST.hs
 			examples/ASTEditor.hs
 			CREDITS
 build-depends:		base >= 3 && < 5,
-			multirec >= 0.3 && < 0.4
+			multirec >= 0.4 && < 0.5

@@ -1,4 +1,4 @@
-zipper-0.2: Generic zipper for systems of recursive datatypes
+zipper-0.3: Generic zipper for systems of recursive datatypes
 =============================================================
 
 The Zipper is a data structure that allows typed navigation on a value.
@@ -16,7 +16,7 @@ the multirec library for that system.
 Changelog (changes w.r.t. zipper-0.1)
 -------------------------------------
 
-* Adapted to work with multirec-0.3.
+* Adapted to work with multirec-0.4.
 
 Requirements
 ------------

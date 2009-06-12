@@ -86,11 +86,11 @@ instance Zipper phi f => HFunctor phi (Ctx f b) where
   hmapA = cmapA
 
 instance Zipper phi (PF phi) => HFunctor phi (Ctxs phi b) where
-  hmapA f Empty        = pure Empty
-  hmapA f (Push p c s) = liftA2 (Push p) (hmapA f c) (hmapA f s)
+  hmapA f p' Empty        = pure Empty
+  hmapA f p' (Push p c s) = liftA2 (Push p) (hmapA f p c) (hmapA f p' s)
 
 instance HFunctor phi (Loc phi) where
-  hmapA f (Loc p x s) = liftA2 (Loc p) (f p x) (hmapA f s)
+  hmapA f p' (Loc p x s)  = liftA2 (Loc p) (f p x) (hmapA f p' s)
 
 -- * Generic navigation functions
 
@@ -101,7 +101,7 @@ instance HFunctor phi (Loc phi) where
 
 class HFunctor phi f => Zipper phi f where
   cmapA       :: Applicative a => (forall ix. phi ix -> r ix -> a (r' ix)) ->
-                 Ctx f b r ix -> a (Ctx f b r' ix)
+                 phi ix -> Ctx f b r ix -> a (Ctx f b r' ix)
   fill        :: phi b -> Ctx f b r ix -> r b -> f r ix
   first, last :: (forall b. phi b -> r b -> Ctx f b r ix -> a)
               -> f r ix -> Maybe a
@@ -109,7 +109,7 @@ class HFunctor phi f => Zipper phi f where
               -> phi b -> Ctx f b r ix -> r b -> Maybe a
 
 instance El phi xi => Zipper phi (I xi) where
-  cmapA f   (CId prf)   = pure (CId prf)
+  cmapA f p (CId prf)   = pure (CId prf)
   fill    p (CId prf) x = castId prf I x
   first f (I x)  = return (f proof x (CId Refl))
   last  f (I x)  = return (f proof x (CId Refl))
@@ -117,7 +117,7 @@ instance El phi xi => Zipper phi (I xi) where
   prev  f p (CId prf) x = Nothing
 
 instance Zipper phi (K a) where
-  cmapA f   void   = impossible void
+  cmapA f p void   = impossible void
   fill    p void x = impossible void
   first f (K a)    = Nothing
   last  f (K a)    = Nothing
@@ -125,7 +125,7 @@ instance Zipper phi (K a) where
   prev  f p void x = impossible void
 
 instance Zipper phi U where
-  cmapA f   void   = impossible void
+  cmapA f p void   = impossible void
   fill    p void x = impossible void
   first f U        = Nothing
   last  f U        = Nothing
@@ -133,8 +133,8 @@ instance Zipper phi U where
   prev  f p void x = impossible void
 
 instance (Zipper phi f, Zipper phi g) => Zipper phi (f :+: g) where
-  cmapA f   (CL c)   = liftA CL (cmapA f c)
-  cmapA f   (CR c)   = liftA CR (cmapA f c)
+  cmapA f p (CL c)   = liftA CL (cmapA f p c)
+  cmapA f p (CR c)   = liftA CR (cmapA f p c)
   fill    p (CL c) x = L (fill p c x)
   fill    p (CR c) y = R (fill p c y)
   first f (L x)      = first (\p z -> f p z . CL) x
@@ -147,8 +147,8 @@ instance (Zipper phi f, Zipper phi g) => Zipper phi (f :+: g) where
   prev  f p (CR c) y = prev  (\p z -> f p z . CR) p c y
 
 instance (Zipper phi f, Zipper phi g) => Zipper phi (f :*: g) where
-  cmapA f   (C1 c y)   = liftA2 C1 (cmapA f c) (hmapA f y)
-  cmapA f   (C2 x c)   = liftA2 C2 (hmapA f x) (cmapA f c)
+  cmapA f p (C1 c y)   = liftA2 C1 (cmapA f p c) (hmapA f p y)
+  cmapA f p (C2 x c)   = liftA2 C2 (hmapA f p x) (cmapA f p c)
   fill    p (C1 c y) x = fill p c x :*: y
   fill    p (C2 x c) y = x :*: fill p c y
   first f (x :*: y)                =
@@ -169,7 +169,7 @@ instance (Zipper phi f, Zipper phi g) => Zipper phi (f :*: g) where
                 last  (\p' z c' -> f p' z (C1 c' (fill p c y)))     x
 
 instance Zipper phi f => Zipper phi (f :>: xi) where
-  cmapA f   (CTag prf c)   = liftA (CTag prf) (cmapA f c)
+  cmapA f p (CTag prf c)   = liftA (CTag prf) (cmapA f p c)
   fill    p (CTag prf c) x = castTag prf Tag (fill p c x)
   first f (Tag x)          = first (\p z -> f p z . CTag Refl)     x
   last  f (Tag x)          = last  (\p z -> f p z . CTag Refl)     x
@@ -177,7 +177,7 @@ instance Zipper phi f => Zipper phi (f :>: xi) where
   prev  f p (CTag prf c) x = prev  (\p z -> f p z . CTag prf)  p c x
 
 instance (Constructor c, Zipper phi f) => Zipper phi (C c f) where
-  cmapA f   (CC c)   = liftA CC (cmapA f c)
+  cmapA f p (CC c)   = liftA CC (cmapA f p c)
   fill    p (CC c) x = C (fill p c x)
   first f (C x)      = first (\p z -> f p z . CC)     x
   last  f (C x)      = last  (\p z -> f p z . CC)     x
@@ -270,7 +270,7 @@ foldZipper f alg (Loc p (I0 x) c) = cfold alg p c (f p x)
  where
   cfold :: (Fam phi, Zipper phi (PF phi)) => Algebra phi r -> phi b -> Ctxs phi b I0 a -> r b -> r a
   cfold alg p' Empty        x = x
-  cfold alg p' (Push p c s) x = cfold alg p s (alg p (fill p' (hmap (\ p (I0 x) -> fold alg p x) c) x))
+  cfold alg p' (Push p c s) x = cfold alg p s (alg p (fill p' (hmap (\ p (I0 x) -> fold alg p x) p c) x))
 
 -- * Internal functions
 
