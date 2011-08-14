@@ -41,6 +41,7 @@ import Prelude hiding (last)
 import Control.Monad
 import Control.Applicative
 import Data.Maybe
+import Data.Traversable
 
 import Generics.MultiRec.Base
 import Generics.MultiRec.Fold
@@ -72,6 +73,8 @@ data instance Ctx (f :+: g) b r ix  = CL (Ctx f b r ix)
                                     | CR (Ctx g b r ix)
 data instance Ctx (f :*: g) b r ix  = C1 (Ctx f b r ix) (g r ix)
                                     | C2 (f r ix) (Ctx g b r ix)
+
+data instance Ctx ([] :.: g) b r ix = CCL [g r ix] [g r ix] (Ctx g b r ix)
 
 -- The equality constraints simulate GADTs. GHC currently
 -- does not allow us to use GADTs as data family instances.
@@ -167,6 +170,25 @@ instance (Zipper phi f, Zipper phi g) => Zipper phi (f :*: g) where
   prev  f p (C2 x c) y =
                 prev  (\p' z c' -> f p' z (C2 x            c')) p c y `mplus`
                 last  (\p' z c' -> f p' z (C1 c' (fill p c y)))     x
+
+-- For the time being, we support just [] and Maybe. I think we
+-- might be able to support a whole class (Foldable).
+instance (Zipper phi g) => Zipper phi ([] :.: g) where
+  cmapA f p (CCL pb pe c)   =
+    CCL <$> traverse (hmapA f p) pb <*> traverse (hmapA f p) pe <*> cmapA f p c
+  fill    p (CCL pb pe c) x =
+    D (reverse pb ++ fill p c x : pe)
+  first f (D [])            = Nothing
+  first f (D (x : xs))      = first (\p z -> f p z . CCL [] xs) x
+  last  f (D xs)            =
+    case reverse xs of
+      []     -> Nothing
+      y : ys -> last (\p z -> f p z . CCL ys []) y
+  next  f p (CCL pb pe c) x =
+    next undefined p c x `mplus`
+    case pe of
+      []     -> Nothing
+      y : ys -> undefined
 
 instance Zipper phi f => Zipper phi (f :>: xi) where
   cmapA f p (CTag prf c)   = liftA (CTag prf) (cmapA f p c)
