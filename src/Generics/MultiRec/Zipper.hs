@@ -74,7 +74,8 @@ data instance Ctx (f :+: g) b r ix  = CL (Ctx f b r ix)
 data instance Ctx (f :*: g) b r ix  = C1 (Ctx f b r ix) (g r ix)
                                     | C2 (f r ix) (Ctx g b r ix)
 
-data instance Ctx ([] :.: g) b r ix = CCL [g r ix] [g r ix] (Ctx g b r ix)
+data instance Ctx ([] :.: g) b r ix = CCL [g r ix] (Ctx g b r ix) [g r ix]
+data instance Ctx (Maybe :.: g) b r ix = CCM (Ctx g b r ix)
 
 -- The equality constraints simulate GADTs. GHC currently
 -- does not allow us to use GADTs as data family instances.
@@ -174,21 +175,38 @@ instance (Zipper phi f, Zipper phi g) => Zipper phi (f :*: g) where
 -- For the time being, we support just [] and Maybe. I think we
 -- might be able to support a whole class (Foldable).
 instance (Zipper phi g) => Zipper phi ([] :.: g) where
-  cmapA f p (CCL pb pe c)   =
-    CCL <$> traverse (hmapA f p) pb <*> traverse (hmapA f p) pe <*> cmapA f p c
-  fill    p (CCL pb pe c) x =
+  cmapA f p (CCL pb c pe)   =
+    CCL <$> traverse (hmapA f p) pb <*> cmapA f p c <*> traverse (hmapA f p) pe
+  fill    p (CCL pb c pe) x =
     D (reverse pb ++ fill p c x : pe)
   first f (D [])            = Nothing
-  first f (D (x : xs))      = first (\p z -> f p z . CCL [] xs) x
+  first f (D (x : xs))      = first (\p z c -> f p z (CCL [] c xs)) x
   last  f (D xs)            =
     case reverse xs of
       []     -> Nothing
-      y : ys -> last (\p z -> f p z . CCL ys []) y
-  next  f p (CCL pb pe c) x =
-    next undefined p c x `mplus`
+      y : ys -> last (\p z c -> f p z (CCL ys c [])) y
+  next  f p (CCL pb c pe) x =
+    next (\p z c -> f p z (CCL pb c pe)) p c x `mplus`
     case pe of
       []     -> Nothing
-      y : ys -> undefined
+      y : ys -> first (\p' z c' -> f p' z (CCL (fill p c x : pb) c' ys)) y
+  prev  f p (CCL pb c pe) x =
+    prev (\p z c -> f p z (CCL pb c pe)) p c x `mplus`
+    case pb of
+      []     -> Nothing
+      y : ys -> last  (\p' z c' -> f p' z (CCL ys c' (fill p c x : pe))) y
+
+instance (Zipper phi g) => Zipper phi (Maybe :.: g) where
+  cmapA f p (CCM c)    =
+    CCM <$> cmapA f p c
+  fill p (CCM c) x     =
+    D (Just (fill p c x))
+  first f (D Nothing)  = Nothing
+  first f (D (Just x)) = first (\p z -> f p z . CCM) x
+  last  f (D Nothing)  = Nothing
+  last  f (D (Just x)) = last  (\p z -> f p z . CCM) x
+  next  f p (CCM c) x  = next  (\p z -> f p z . CCM) p c x
+  prev  f p (CCM c) x  = prev  (\p z -> f p z . CCM) p c x
 
 instance Zipper phi f => Zipper phi (f :>: xi) where
   cmapA f p (CTag prf c)   = liftA (CTag prf) (cmapA f p c)
