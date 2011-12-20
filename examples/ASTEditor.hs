@@ -23,13 +23,13 @@ main = startEditor
 
 -- | Call this to start the navigation demo.
 startEditor :: IO ()
-startEditor = 
+startEditor =
   do
     intro
     hSetBuffering stdin NoBuffering
     loop $ enter Expr example
 
-example = Let (Seq (Seq ("x" := Mul (Const 6) (Const 9)) ("y" := Const (-12))) None)
+example = Let (Seq ["x" := Mul (Const 6) (Const 9), "y" := Const (-12)])
               (Add (EVar "x") (EVar "y"))
 
 -- | Show the current location, with the focus being highlighted in red.
