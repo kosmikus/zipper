@@ -42,4 +42,4 @@ library
   exposed-modules:      Generics.MultiRec.Zipper
 
   build-depends:        base >= 3 && < 5,
-                        multirec >= 0.4 && < 0.7
+                        multirec >= 0.4 && < 0.8
