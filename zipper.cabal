@@ -1,5 +1,5 @@
 name:                   zipper
-version:                0.4
+version:                0.4.1
 license:                BSD3
 license-file:           LICENSE
 author:	                Alexey Rodriguez,
@@ -42,4 +42,4 @@ library
   exposed-modules:      Generics.MultiRec.Zipper
 
   build-depends:        base >= 3 && < 5,
-                        multirec >= 0.4 && < 0.8
+                        multirec >= 0.6 && < 0.8

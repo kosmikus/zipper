@@ -6,6 +6,7 @@
 {-# LANGUAGE RankNTypes            #-}
 {-# LANGUAGE TypeFamilies          #-}
 {-# LANGUAGE TypeOperators         #-}
+{-# LANGUAGE EmptyDataDecls        #-}
 
 -----------------------------------------------------------------------------
 -- |
