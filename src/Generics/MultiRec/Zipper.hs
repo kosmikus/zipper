@@ -66,7 +66,7 @@ data Ctxs :: (* -> *) -> * -> (* -> *) -> * -> * where
 -- | Abstract type of context frames. Not required for the high-level
 -- navigation functions.
 
-data family Ctx f :: * -> (* -> *) -> * -> *
+data family Ctx (f :: (* -> *) -> * -> *) :: * -> (* -> *) -> * -> *
 
 data instance Ctx (K a) b r ix
 data instance Ctx U b r ix
