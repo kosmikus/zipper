@@ -5,6 +5,7 @@
 {-# LANGUAGE TypeOperators         #-}
 {-# LANGUAGE TypeSynonymInstances  #-}
 {-# LANGUAGE EmptyDataDecls        #-}
+{-# LANGUAGE FlexibleInstances     #-}
 
 module ASTUse where
 
