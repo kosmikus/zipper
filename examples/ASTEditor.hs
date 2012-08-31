@@ -27,6 +27,7 @@ startEditor =
   do
     intro
     hSetBuffering stdin NoBuffering
+    hSetBuffering stdout NoBuffering
     loop $ enter Expr example
 
 example = Let (Seq ["x" := Mul (Const 6) (Const 9), "y" := Const (-12)])
