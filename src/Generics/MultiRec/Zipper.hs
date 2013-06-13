@@ -34,7 +34,7 @@ module Generics.MultiRec.Zipper
    enter,
    down, down', up, right, left,
    dfnext, dfprev,
-   leave, on, update, updateM, foldZipper
+   leave, on, update, updateF, foldZipper
   ) where
 
 import Prelude hiding (last)
@@ -304,11 +304,11 @@ on f (Loc p x _) = f p x
 update :: (forall xi. phi xi -> xi -> xi) -> Loc phi I0 ix -> Loc phi I0 ix
 update f (Loc p (I0 x) s) = Loc p (I0 $ f p x) s
 
--- | Update the current focus without changing its type, allowing for failure.
-updateM :: (Monad m)
-        => (forall xi. phi xi -> xi -> m xi)
-        -> Loc phi I0 ix -> m (Loc phi I0 ix)
-updateM f (Loc p (I0 x) s) = liftM (\y -> Loc p (I0 y) s) (f p x)
+-- | Update the current focus, embedded in a functor.
+updateF :: (Functor f)
+        => (forall xi. phi xi -> xi -> f xi)
+        -> Loc phi I0 ix -> f (Loc phi I0 ix)
+updateF f (Loc p (I0 x) s) = (\y -> Loc p (I0 y) s) <$> f p x
 
 -- | Most general eliminator. Both 'on' and 'update' can be defined
 -- in terms of 'foldZipper'.
